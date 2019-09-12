@@ -13,25 +13,17 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.GraphicsEnvironment;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.util.Duration;
-import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 import model.TablaBcg;
+import model.Usuario;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
@@ -41,10 +33,10 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import rojerusan.RSPanelsSlider;
 
 /**
  *
@@ -60,6 +52,7 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
     int yMouse;
     private DatosBcg cldb;
     clsExportarExcel obj;
+    Usuario usuario;
 
     public dashboard() {
         initComponents();
@@ -86,19 +79,24 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
     }
 
     private XYDataset crearDatos() {
-
         DefaultTableModel miTableModel = (DefaultTableModel) tabla.getModel();
         int nFilas = tabla.getRowCount();
-        double n = 0;
+        int n = 0;
+        XYSeries series = null;
         XYSeriesCollection datos = new XYSeriesCollection();
         for (int i = 1; i < nFilas; i++) {
             if (tabla.getValueAt(i, 3) == null || tabla.getValueAt(i, 4) == null) {
                 System.out.println("No hay valores en X o Y");
             } else {
-                XYSeries series = new XYSeries("P" + (i));
+                n++;
+                series = new XYSeries(i, true);
                 series.add((double) tabla.getValueAt(i, 3), (double) tabla.getValueAt(i, 4));
                 datos.addSeries(series);
-
+//                test(series);
+                rangoVaca(series);
+                rangoPerro(series);
+                rangoEstrella(series);
+                rangoInterrogante(series);
             }
 
         }
@@ -121,20 +119,21 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
         btnMinimizar = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
+        lblNombre = new javax.swing.JLabel();
+        lblApellido = new javax.swing.JLabel();
         lblFecha = new javax.swing.JLabel();
         lblHora = new javax.swing.JLabel();
         panelBotone = new javax.swing.JPanel();
-        inicio = new javax.swing.JButton();
+        btn1 = new rojerusan.RSButtonIconI();
+        btn2 = new rojerusan.RSButtonIconI();
         pnlRoot = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        tabla = new javax.swing.JTable();
-        btnGraficar = new javax.swing.JButton();
+        rSPanelsSlider1 = new rojerusan.RSPanelsSlider();
+        pnl1 = new javax.swing.JPanel();
         btnCalcular = new javax.swing.JButton();
-        jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
+        btnGraficar = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tabla = new rojerusan.RSTableMetro();
+        pnl2 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("dashboard");
@@ -187,6 +186,11 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
                 btnMaximizarMouseExited(evt);
             }
         });
+        btnMaximizar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnMaximizarActionPerformed(evt);
+            }
+        });
 
         btnMinimizar.setBackground(new java.awt.Color(255, 255, 255));
         btnMinimizar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Minimize.png"))); // NOI18N
@@ -228,17 +232,18 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
 
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-circundado-usuario-macho-tipo-4-de-la-piel-160.png"))); // NOI18N
 
-        jLabel3.setFont(new java.awt.Font("Berlin Sans FB Demi", 1, 20)); // NOI18N
-        jLabel3.setText("Nombres");
+        lblNombre.setFont(new java.awt.Font("Berlin Sans FB Demi", 1, 23)); // NOI18N
+        lblNombre.setText("Nombres");
 
-        jLabel4.setFont(new java.awt.Font("Berlin Sans FB Demi", 1, 15)); // NOI18N
-        jLabel4.setText("Apellidos");
+        lblApellido.setFont(new java.awt.Font("Berlin Sans FB Demi", 1, 18)); // NOI18N
+        lblApellido.setText("Apellidos");
 
-        lblFecha.setFont(new java.awt.Font("Berlin Sans FB Demi", 1, 14)); // NOI18N
+        lblFecha.setFont(new java.awt.Font("Berlin Sans FB Demi", 1, 24)); // NOI18N
         lblFecha.setText("Fecha");
 
-        lblHora.setFont(new java.awt.Font("Berlin Sans FB Demi", 1, 14)); // NOI18N
+        lblHora.setFont(new java.awt.Font("Berlin Sans FB Demi", 1, 24)); // NOI18N
         lblHora.setText("Hora");
+        lblHora.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -249,12 +254,12 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 558, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblFecha, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblHora, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(lblNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblApellido))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(lblFecha, javax.swing.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE)
+                    .addComponent(lblHora, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -262,12 +267,12 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(50, 50, 50)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(lblFecha))
+                    .addComponent(lblNombre)
+                    .addComponent(lblFecha, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel4)
-                    .addComponent(lblHora))
+                    .addComponent(lblApellido)
+                    .addComponent(lblHora, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
@@ -277,26 +282,27 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
 
         panelBotone.setBackground(new java.awt.Color(255, 255, 255));
 
-        inicio.setBackground(new java.awt.Color(255, 255, 255));
-        inicio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-cucha-25.png"))); // NOI18N
-        inicio.setContentAreaFilled(false);
-        inicio.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        inicio.setOpaque(true);
-        inicio.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-cucha-25.png"))); // NOI18N
-        inicio.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                inicioMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                inicioMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                inicioMouseExited(evt);
+        btn1.setBackground(new java.awt.Color(255, 255, 255));
+        btn1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/house.png"))); // NOI18N
+        btn1.setText("Inicio");
+        btn1.setColorHover(new java.awt.Color(102, 102, 102));
+        btn1.setColorText(new java.awt.Color(0, 0, 0));
+        btn1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        btn1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn1ActionPerformed(evt);
             }
         });
-        inicio.addActionListener(new java.awt.event.ActionListener() {
+
+        btn2.setBackground(new java.awt.Color(255, 255, 255));
+        btn2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/statistics (2).png"))); // NOI18N
+        btn2.setText("Grafica");
+        btn2.setColorHover(new java.awt.Color(102, 102, 102));
+        btn2.setColorText(new java.awt.Color(0, 0, 0));
+        btn2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        btn2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                inicioActionPerformed(evt);
+                btn2ActionPerformed(evt);
             }
         });
 
@@ -304,39 +310,33 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
         panelBotone.setLayout(panelBotoneLayout);
         panelBotoneLayout.setHorizontalGroup(
             panelBotoneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(inicio, javax.swing.GroupLayout.DEFAULT_SIZE, 183, Short.MAX_VALUE)
+            .addGroup(panelBotoneLayout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addGroup(panelBotoneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btn1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btn2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
         panelBotoneLayout.setVerticalGroup(
             panelBotoneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelBotoneLayout.createSequentialGroup()
-                .addComponent(inicio)
-                .addGap(0, 338, Short.MAX_VALUE))
+                .addComponent(btn1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(btn2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pnlRoot.setBackground(new java.awt.Color(255, 255, 255));
 
-        jScrollPane1.setForeground(new java.awt.Color(255, 255, 255));
+        rSPanelsSlider1.setBackground(new java.awt.Color(255, 255, 255));
 
-        tabla.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
-            },
-            new String [] {
-                "ID", "Ultilidad General", "Utilidad Competidor", "X - Tasa de crecimiento", "Y - Participacion Relativa"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false, false
-            };
+        pnl1.setName("pnl1"); // NOI18N
 
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
+        btnCalcular.setText("Calcular");
+        btnCalcular.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCalcularActionPerformed(evt);
             }
         });
-        jScrollPane1.setViewportView(tabla);
 
         btnGraficar.setText("Graficar");
         btnGraficar.setEnabled(false);
@@ -346,55 +346,96 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
             }
         });
 
-        btnCalcular.setText("Calcular");
-        btnCalcular.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnCalcularActionPerformed(evt);
+        tabla.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "ID", "Utilidad General", "Utilidad Competidor", "Tasa de Crecimiento", "Participacion Relativa"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Float.class, java.lang.Float.class, java.lang.Float.class, java.lang.Float.class, java.lang.Float.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
+        tabla.setColorBackgoundHead(new java.awt.Color(0, 0, 0));
+        tabla.setColorBordeFilas(new java.awt.Color(255, 255, 255));
+        tabla.setColorFilasForeground1(new java.awt.Color(0, 0, 0));
+        tabla.setColorFilasForeground2(new java.awt.Color(0, 0, 0));
+        jScrollPane2.setViewportView(tabla);
+        if (tabla.getColumnModel().getColumnCount() > 0) {
+            tabla.getColumnModel().getColumn(0).setResizable(false);
+            tabla.getColumnModel().getColumn(0).setPreferredWidth(2);
+            tabla.getColumnModel().getColumn(1).setResizable(false);
+            tabla.getColumnModel().getColumn(2).setResizable(false);
+            tabla.getColumnModel().getColumn(3).setResizable(false);
+            tabla.getColumnModel().getColumn(4).setResizable(false);
+        }
+
+        javax.swing.GroupLayout pnl1Layout = new javax.swing.GroupLayout(pnl1);
+        pnl1.setLayout(pnl1Layout);
+        pnl1Layout.setHorizontalGroup(
+            pnl1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnl1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnGraficar)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnCalcular)
+                .addGap(34, 34, 34))
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 800, Short.MAX_VALUE)
+        );
+        pnl1Layout.setVerticalGroup(
+            pnl1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnl1Layout.createSequentialGroup()
+                .addGap(0, 0, 0)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 306, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
+                .addGroup(pnl1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnCalcular)
+                    .addComponent(btnGraficar))
+                .addGap(37, 37, 37))
+        );
+
+        rSPanelsSlider1.add(pnl1, "card2");
+
+        pnl2.setName("pnl2"); // NOI18N
+
+        javax.swing.GroupLayout pnl2Layout = new javax.swing.GroupLayout(pnl2);
+        pnl2.setLayout(pnl2Layout);
+        pnl2Layout.setHorizontalGroup(
+            pnl2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 800, Short.MAX_VALUE)
+        );
+        pnl2Layout.setVerticalGroup(
+            pnl2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 392, Short.MAX_VALUE)
+        );
+
+        rSPanelsSlider1.add(pnl2, "card3");
 
         javax.swing.GroupLayout pnlRootLayout = new javax.swing.GroupLayout(pnlRoot);
         pnlRoot.setLayout(pnlRootLayout);
         pnlRootLayout.setHorizontalGroup(
             pnlRootLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlRootLayout.createSequentialGroup()
-                .addContainerGap(655, Short.MAX_VALUE)
-                .addComponent(btnGraficar)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnCalcular)
-                .addContainerGap())
-            .addGroup(pnlRootLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 817, Short.MAX_VALUE))
+            .addComponent(rSPanelsSlider1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         pnlRootLayout.setVerticalGroup(
             pnlRootLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlRootLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(pnlRootLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnCalcular)
-                    .addComponent(btnGraficar))
-                .addGap(29, 29, 29))
-            .addGroup(pnlRootLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(pnlRootLayout.createSequentialGroup()
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(0, 65, Short.MAX_VALUE)))
+            .addComponent(rSPanelsSlider1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
-
-        jMenuBar1.setBackground(new java.awt.Color(255, 255, 255));
-
-        jMenu1.setText("Archivo");
-
-        jMenuItem1.setText("Exportar a Excel");
-        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem1ActionPerformed(evt);
-            }
-        });
-        jMenu1.add(jMenuItem1);
-
-        jMenuBar1.add(jMenu1);
-
-        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -482,31 +523,29 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
         }
     }//GEN-LAST:event_pnlHeaderMouseDragged
 
-    private void inicioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_inicioMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_inicioMouseClicked
-
-    private void inicioMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_inicioMouseEntered
-        // TODO add your handling code here:
-    }//GEN-LAST:event_inicioMouseEntered
-
-    private void inicioMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_inicioMouseExited
-        // TODO add your handling code here:
-    }//GEN-LAST:event_inicioMouseExited
-
     private void btnGraficarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGraficarActionPerformed
-
-        JPanel grafica1 = null;
+        pnl2.removeAll();
+        pnl2.repaint();
         try {
-            grafica1 = crearGrafica();
+            crearGrafica();
+//        try {
+//            pnl2 = crearGrafica();
+//        } catch (IOException ex) {
+//            System.out.println(ex);
+//        }
+//        JFrame ventana = new JFrame();
+//        ventana.getContentPane().add(pnl2);
+//        ventana.pack();
+//        ventana.setVisible(true);
         } catch (IOException ex) {
-            System.out.println(ex);
+            Logger.getLogger(dashboard.class.getName()).log(Level.SEVERE, null, ex);
         }
+        if (!this.btn2.isSelected()) {
+            this.btn2.setSelected(true);
+            this.btn1.setSelected(false);
 
-        JFrame Ventana = new JFrame("Diagrama - BCG");
-        Ventana.getContentPane().add(grafica1);
-        Ventana.pack();
-        Ventana.setVisible(true);
+            rSPanelsSlider1.setPanelSlider(10, pnl2, RSPanelsSlider.DIRECT.RIGHT);
+        }
     }//GEN-LAST:event_btnGraficarActionPerformed
 
     private void btnCalcularActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCalcularActionPerformed
@@ -521,7 +560,7 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
                 valorU2 = Double.parseDouble(miTableModel.getValueAt(i - 1, 1).toString());
                 valorUtilidaCompetidor = Double.parseDouble(miTableModel.getValueAt(i, 2).toString());
                 //Calculamos la Tasa de crecimiento
-                tc = (valorU1 - valorU2) / valorU2 * 100;
+                tc = (valorU1 - valorU2) / valorU2;
                 //Limitar la cantidad de Decimales con Math.round
                 miTableModel.setValueAt(Math.round(tc * 1e2) / 1e2, i, 3);
                 //Calculamos la Participacion Relativa
@@ -530,26 +569,33 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
 
             }
             btnGraficar.setEnabled(true);
-            calcularp(tc, cm);
+//            calcularp(tc, cm);
 
         } catch (Exception e) {
             System.out.println(e);
         }
     }//GEN-LAST:event_btnCalcularActionPerformed
 
-    private void inicioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inicioActionPerformed
-        tabla.removeAll();
-    }//GEN-LAST:event_inicioActionPerformed
-
-    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-
-        try {
-            obj = new clsExportarExcel();
-            obj.exportarExcel(tabla);
-        } catch (IOException ex) {
-            System.out.println(ex);
+    private void btn1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn1ActionPerformed
+        if (!this.btn1.isSelected()) {
+            this.btn1.setSelected(true);
+            this.btn2.setSelected(false);
+            rSPanelsSlider1.setPanelSlider(20, pnl1, RSPanelsSlider.DIRECT.RIGHT);
         }
-    }//GEN-LAST:event_jMenuItem1ActionPerformed
+    }//GEN-LAST:event_btn1ActionPerformed
+
+    private void btn2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn2ActionPerformed
+        if (!this.btn2.isSelected()) {
+            this.btn2.setSelected(true);
+            this.btn1.setSelected(false);
+
+            rSPanelsSlider1.setPanelSlider(20, pnl2, RSPanelsSlider.DIRECT.RIGHT);
+        }
+    }//GEN-LAST:event_btn2ActionPerformed
+
+    private void btnMaximizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMaximizarActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnMaximizarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -588,26 +634,27 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private rojerusan.RSButtonIconI btn1;
+    private rojerusan.RSButtonIconI btn2;
     private javax.swing.JButton btnCalcular;
     private javax.swing.JButton btnExit;
     private javax.swing.JButton btnGraficar;
     private javax.swing.JButton btnMaximizar;
     private javax.swing.JButton btnMinimizar;
-    private javax.swing.JButton inicio;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    public javax.swing.JLabel lblApellido;
     private javax.swing.JLabel lblFecha;
     private javax.swing.JLabel lblHora;
+    public javax.swing.JLabel lblNombre;
     private javax.swing.JPanel panelBotone;
+    private javax.swing.JPanel pnl1;
+    private javax.swing.JPanel pnl2;
     private javax.swing.JPanel pnlHeader;
     private javax.swing.JPanel pnlRoot;
-    private javax.swing.JTable tabla;
+    private rojerusan.RSPanelsSlider rSPanelsSlider1;
+    private rojerusan.RSTableMetro tabla;
     // End of variables declaration//GEN-END:variables
 
     @Override
@@ -641,9 +688,10 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
     }
 
     private JPanel crearGrafica() throws IOException {
+
         String tituloGrafica = "Matriz BCG";
-        String ejeX = "X - TASA CRECRIMIENTO";
-        String ejeY = "Y - PARTICIPACION RELATIVA";
+        String ejeX = "Tasa de crecimiento";
+        String ejeY = "Tasa decrecimiento en %";
 
         XYDataset datos = crearDatos();
 
@@ -654,6 +702,9 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
         JFreeChart grafica = ChartFactory.createScatterPlot(tituloGrafica,
                 ejeX, ejeY, datos, PlotOrientation.HORIZONTAL,
                 showLegend, createTooltip, createURL);
+        ChartPanel cp = new ChartPanel(grafica);
+        pnl2.add(cp);
+        cp.setSize(pnl2.getSize());
 
         personalizarGrafica(grafica);
 
@@ -674,10 +725,6 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
 
         XYPlot plot = grafica.getXYPlot();
         plot.setNoDataMessage("NO HAY DATOS");
-        plot.setDomainPannable(true);
-        plot.setRangePannable(true);
-        plot.setDomainZeroBaselineVisible(true);
-        plot.setRangeZeroBaselineVisible(true);
 
         plot.setDomainGridlineStroke(new BasicStroke(0.0f));
         plot.setDomainMinorGridlineStroke(new BasicStroke(0.0f));
@@ -686,19 +733,19 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
         plot.setRangeMinorGridlineStroke(new BasicStroke(0.0f));
         plot.setRangeGridlinePaint(Color.blue);
 
-        XYLineAndShapeRenderer renderer
-                = (XYLineAndShapeRenderer) plot.getRenderer();
-        renderer.setSeriesOutlinePaint(0, Color.black);
-        renderer.setUseOutlinePaint(true);
         NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
-        LogarithmicAxis rangeAxis = new LogarithmicAxis("Y");
-        rangeAxis.setRange(0.1, 10.0);
 
-        ValueMarker marker = new ValueMarker(domainAxis.getAutoRangeMinimumSize());  //position is the value on the axis
-        marker.setPaint(Color.BLUE);
-
-        rangeAxis.setStrictValuesFlag(false);
+        LogarithmicAxis rangeAxis = new LogarithmicAxis("Participacion Relativa");
+        double position = 0.10;
+        ValueMarker marker = new ValueMarker(position);
+        marker.setPaint(Color.black);
+        plot.addDomainMarker(marker);
+        double position2 = 1.0;
+        ValueMarker marker2 = new ValueMarker(position2);
+        marker2.setPaint(Color.BLACK);
+        plot.addRangeMarker(marker2);
         plot.setRangeAxis(rangeAxis);
+        rangeAxis.setRange(5, 10.0);
 //        domainAxis.setNumberFormatOverride(new DecimalFormat("##.##%"));
 
         grafica.getXYPlot().getRangeAxis().setUpperBound(10.0);
@@ -726,6 +773,71 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
             }
         }
 
+    }
+
+    private void test(XYSeries series) {
+
+        for (int i = 0; i < series.getItems().size(); i++) {
+            double y = series.getX(i).doubleValue();
+            double x = series.getY(i).doubleValue();
+            if (x > 1 && y <= 0.1) {
+                System.out.println("Vaca");
+//                System.out.println(series.getItems());
+            }
+            if (x <= 1 && y <= 0.1) {
+//                System.out.println("Perro");
+//                System.out.println(series.getItems());
+            }
+            if (x <= 1 && y > 0.1) {
+//                System.out.println("Interrogante");
+//                System.out.println(series.getItems());
+            }
+            if (x > 1 && y > 0.1) {
+                System.out.println("Estrella");
+                //System.out.println(series.getItems());
+            }
+
+        }
+    }
+
+    private void rangoVaca(XYSeries series) {
+        for (int i = 0; i < series.getItems().size(); i++) {
+            double y = series.getX(i).doubleValue();
+            double x = series.getY(i).doubleValue();
+            if (x <= 1 && y <= 0.1) {
+                System.out.println("Vaca " + series.getItems());
+            }
+        }
+    }
+
+    private void rangoPerro(XYSeries series) {
+        for (int i = 0; i < series.getItems().size(); i++) {
+            double y = series.getX(i).doubleValue();
+            double x = series.getY(i).doubleValue();
+            if (x > 1 && y <= 0.1) {
+                System.out.println("Perro " + series.getItems());
+            }
+        }
+    }
+
+    private void rangoInterrogante(XYSeries series) {
+        for (int i = 0; i < series.getItems().size(); i++) {
+            double y = series.getX(i).doubleValue();
+            double x = series.getY(i).doubleValue();
+            if (x <= 1 && y > 0.1) {
+                System.out.println("Interrogante " + series.getItems());
+            }
+        }
+    }
+
+    private void rangoEstrella(XYSeries series) {
+        for (int i = 0; i < series.getItems().size(); i++) {
+            double y = series.getX(i).doubleValue();
+            double x = series.getY(i).doubleValue();
+            if (x > 1 && y > 0.1) {
+                System.out.println("Estrella" + series.getItems());
+            }
+        }
     }
 
 }
