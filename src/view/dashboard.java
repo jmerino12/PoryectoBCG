@@ -21,7 +21,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import model.TablaBcg;
 import model.Usuario;
 import org.jfree.chart.ChartFactory;
@@ -33,6 +35,9 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -53,6 +58,7 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
     private DatosBcg cldb;
     clsExportarExcel obj;
     Usuario usuario;
+    static int count = 0;
 
     public dashboard() {
         initComponents();
@@ -79,29 +85,47 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
     }
 
     private XYDataset crearDatos() {
+
         DefaultTableModel miTableModel = (DefaultTableModel) tabla.getModel();
         int nFilas = tabla.getRowCount();
         int n = 0;
         XYSeries series = null;
         XYSeriesCollection datos = new XYSeriesCollection();
         for (int i = 1; i < nFilas; i++) {
-            if (tabla.getValueAt(i, 3) == null || tabla.getValueAt(i, 4) == null) {
-                System.out.println("No hay valores en X o Y");
-            } else {
-                n++;
-                series = new XYSeries(i, true);
+            //initiate new series
+            series = new XYSeries("p" + Integer.toString(i));
+            for (int k = i; k < i + 1; k++) {
                 series.add((double) tabla.getValueAt(i, 3), (double) tabla.getValueAt(i, 4));
-                datos.addSeries(series);
-//                test(series);
-                rangoVaca(series);
-                rangoPerro(series);
-                rangoEstrella(series);
-                rangoInterrogante(series);
+                prueba(series);
             }
 
+            //add series to dataset
+            datos.addSeries(series);
         }
 
         return datos;
+    }
+
+    public XYSeriesCollection functionDataCollecter() {
+        int nFilas = tabla.getRowCount();
+        //a single line on a chart
+        XYSeries series = null;
+
+        //a collection of series
+        XYSeriesCollection dataset = new XYSeriesCollection();
+
+        for (int i = 1; i < nFilas; i++) {
+            //initiate new series
+            series = new XYSeries("p" + Integer.toString(i));
+            for (int k = i; k < i + 1; k++) {
+                series.add((double) tabla.getValueAt(i, 3), (double) tabla.getValueAt(i, 4));
+
+            }
+            //add series to dataset
+            dataset.addSeries(series);
+        }
+        calcularMatrizPrueba(dataset);
+        return dataset;
     }
 
     /**
@@ -389,24 +413,23 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
         pnl1.setLayout(pnl1Layout);
         pnl1Layout.setHorizontalGroup(
             pnl1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnl1Layout.createSequentialGroup()
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnl1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnGraficar)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnCalcular)
-                .addGap(34, 34, 34))
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 800, Short.MAX_VALUE)
+                .addGap(27, 27, 27))
         );
         pnl1Layout.setVerticalGroup(
             pnl1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnl1Layout.createSequentialGroup()
-                .addGap(0, 0, 0)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 306, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 340, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addGroup(pnl1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnCalcular)
                     .addComponent(btnGraficar))
-                .addGap(37, 37, 37))
+                .addContainerGap())
         );
 
         rSPanelsSlider1.add(pnl1, "card2");
@@ -421,7 +444,7 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
         );
         pnl2Layout.setVerticalGroup(
             pnl2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 392, Short.MAX_VALUE)
+            .addGap(0, 456, Short.MAX_VALUE)
         );
 
         rSPanelsSlider1.add(pnl2, "card3");
@@ -560,7 +583,7 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
                 valorU2 = Double.parseDouble(miTableModel.getValueAt(i - 1, 1).toString());
                 valorUtilidaCompetidor = Double.parseDouble(miTableModel.getValueAt(i, 2).toString());
                 //Calculamos la Tasa de crecimiento
-                tc = (valorU1 - valorU2) / valorU2;
+                tc = (valorU1 - valorU2) / valorU2 * 100;
                 //Limitar la cantidad de Decimales con Math.round
                 miTableModel.setValueAt(Math.round(tc * 1e2) / 1e2, i, 3);
                 //Calculamos la Participacion Relativa
@@ -690,13 +713,13 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
     private JPanel crearGrafica() throws IOException {
 
         String tituloGrafica = "Matriz BCG";
-        String ejeX = "Tasa de crecimiento";
-        String ejeY = "Tasa decrecimiento en %";
+        String ejeX = "Tasa de crecimiento eje x";
+        String ejeY = "Participacion Relativa eje y";
 
-        XYDataset datos = crearDatos();
+        XYDataset datos = functionDataCollecter();
 
         boolean showLegend = true;
-        boolean createURL = false;
+        boolean createURL = true;
         boolean createTooltip = true;
 
         JFreeChart grafica = ChartFactory.createScatterPlot(tituloGrafica,
@@ -721,7 +744,7 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
         return new ChartPanel(grafica);
     }
 
-    private static JFreeChart personalizarGrafica(JFreeChart grafica) throws IOException {
+    private JFreeChart personalizarGrafica(JFreeChart grafica) throws IOException {
 
         XYPlot plot = grafica.getXYPlot();
         plot.setNoDataMessage("NO HAY DATOS");
@@ -736,7 +759,7 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
         NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
 
         LogarithmicAxis rangeAxis = new LogarithmicAxis("Participacion Relativa");
-        double position = 0.10;
+        double position = 0;
         ValueMarker marker = new ValueMarker(position);
         marker.setPaint(Color.black);
         plot.addDomainMarker(marker);
@@ -754,7 +777,7 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
 
 //        BufferedImage img = ImageIO.read(new File("src/img/BCG.png"));
 //        plot.setBackgroundImage(img);
-        plot.setForegroundAlpha(0.5f);
+//        plot.setForegroundAlpha(0.5f);
         return grafica;
     }
 
@@ -776,7 +799,6 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
     }
 
     private void test(XYSeries series) {
-
         for (int i = 0; i < series.getItems().size(); i++) {
             double y = series.getX(i).doubleValue();
             double x = series.getY(i).doubleValue();
@@ -796,6 +818,7 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
                 System.out.println("Estrella");
                 //System.out.println(series.getItems());
             }
+            prueba(series);
 
         }
     }
@@ -840,4 +863,64 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
         }
     }
 
+    private void prueba(XYSeries series) {
+        int contadorEstrella = 0,
+                contadoInterrogante = 0,
+                contadorPerro = 0,
+                contadorVaca = 0;
+        for (int i = 0; i < series.getItemCount(); i++) {
+            double y = series.getX(i).doubleValue();
+            double x = series.getY(i).doubleValue();
+            if (x > 1 && y > 0.1) {
+                contadorEstrella++;
+            } else {
+                if (x <= 1 && y > 0.1) {
+                    contadoInterrogante++;
+                } else {
+                    if (x > 1 && y <= 0.1) {
+                        contadorPerro++;
+                    } else {
+                        if (x <= 1 && y <= 0.1) {
+                            contadorVaca++;
+                        }
+                    }
+                }
+            }
+
+        }
+        System.out.println("Hay " + contadorEstrella + "Elementos estrella");
+        System.out.println("Hay " + contadoInterrogante + "Elementos Interrogante");
+        System.out.println("Hay " + contadorPerro + "Elementos Perro");
+        System.out.println("Hay " + contadorVaca + "Elementos Vaca");
+
+    }
+
+    private void calcularMatrizPrueba(XYSeriesCollection dataset) {
+        int contadorEstrella = 0,
+                contadoInterrogante = 0,
+                contadorPerro = 0,
+                contadorVaca = 0;
+        for (int i = 0; i < dataset.getSeriesCount(); i++) {
+            for (int j = 0; j < dataset.getItemCount(i); j++) {
+                double y = dataset.getX(i, j).doubleValue();
+                double x = dataset.getY(i, j).doubleValue();
+                if (x > 1 && y > 0.1) {
+                    contadorEstrella++;
+                } else if (x <= 1 && y > 0.1) {
+                    contadoInterrogante++;
+                } else if (x <= 1 && y <= 0.1) {
+                    contadorPerro++;
+                } else if (x > 1 && y <= 0.1) {
+                    contadorVaca++;
+                }
+
+            }
+
+        }
+        System.out.println("Hay " + contadorEstrella + " Elementos estrella");
+        System.out.println("Hay " + contadoInterrogante + " Elementos Interrogante");
+        System.out.println("Hay " + contadorPerro + " Elementos Perro");
+        System.out.println("Hay " + contadorVaca + " Elementos Vaca");
+
+    }
 }
