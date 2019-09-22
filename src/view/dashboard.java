@@ -20,7 +20,9 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -372,19 +374,19 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
 
         tabla.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "ID", "Utilidad General", "Utilidad Competidor", "Tasa de Crecimiento", "Participacion Relativa"
+                "ID", "Utilidad General", "Utilidad Competidor", "Tasa de Crecimiento", "Participacion Relativa", "Cuadrante"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Float.class, java.lang.Float.class, java.lang.Float.class, java.lang.Float.class, java.lang.Float.class
+                java.lang.Float.class, java.lang.Float.class, java.lang.Float.class, java.lang.Float.class, java.lang.Float.class, java.lang.Float.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false
+                false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -407,6 +409,7 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
             tabla.getColumnModel().getColumn(2).setResizable(false);
             tabla.getColumnModel().getColumn(3).setResizable(false);
             tabla.getColumnModel().getColumn(4).setResizable(false);
+            tabla.getColumnModel().getColumn(5).setResizable(false);
         }
 
         javax.swing.GroupLayout pnl1Layout = new javax.swing.GroupLayout(pnl1);
@@ -573,7 +576,10 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
 
     private void btnCalcularActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCalcularActionPerformed
         // TODO add your handling code here:
-
+        int contadorEstrella = 0,
+                contadoInterrogante = 0,
+                contadorPerro = 0,
+                contadorVaca = 0;
         double tc = 0, valorU1, valorU2, valorUtilidaCompetidor, cm = 0;
         try {
             DefaultTableModel miTableModel = (DefaultTableModel) tabla.getModel();
@@ -589,9 +595,23 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
                 //Calculamos la Participacion Relativa
                 cm = valorU1 / valorUtilidaCompetidor;
                 miTableModel.setValueAt(Math.round(cm * 1e2) / 1e2, i, 4);
+                if (cm > 1 && tc > 0.1) {
+                    miTableModel.setValueAt("Estrella", i, 5);
+                    contadorEstrella++;
+                } else if (cm <= 1 && tc > 0.1) {
+                    miTableModel.setValueAt("Interrogante", i, 5);
+                    contadoInterrogante++;
+                } else if (cm <= 1 && tc <= 0.1) {
+                    miTableModel.setValueAt("Perro", i, 5);
+                    contadorPerro++;
+                } else if (cm > 1 && tc <= 0.1) {
+                    miTableModel.setValueAt("Vaca", i, 5);
+                    contadorVaca++;
+                }
 
             }
             btnGraficar.setEnabled(true);
+            calcularMatriz();
 //            calcularp(tc, cm);
 
         } catch (Exception e) {
@@ -923,4 +943,226 @@ public class dashboard extends javax.swing.JFrame implements Runnable {
         System.out.println("Hay " + contadorVaca + " Elementos Vaca");
 
     }
+
+    private void calcularMatriz() {
+        String valorU1, valorU2;
+        double estrellaE = 0;
+        double estrellaV = 0;
+        double estrellaI = 0;
+        double estrellaP = 0;
+        double totalEstrella = 0;
+        double vacaV = 0;
+        double vacaE = 0;
+        double vacaI = 0;
+        double vacaP = 0;
+        double totalVaca = 0;
+        double interroganteI = 0;
+        double interroganteE = 0;
+        double interroganteV = 0;
+        double interroganteP = 0;
+        double totalInterrogante = 0;
+        double perroP = 0;
+        double perroE = 0;
+        double perroI = 0;
+        double perroV = 0;
+        double totalPerro = 0;
+
+        try {
+            DefaultTableModel miTableModel = (DefaultTableModel) tabla.getModel();
+            for (int i = 1; i <= miTableModel.getRowCount() - 1; i++) {
+                valorU1 = (miTableModel.getValueAt(i, 5).toString());
+                valorU2 = (miTableModel.getValueAt(i + 1, 5).toString());
+                if (valorU1.equals("Perro") && valorU2.equals("Perro")) {
+                    perroP++;
+                } else {
+                    if (valorU1.equals("Estrella") && valorU2.equals("Estrella")) {
+                        estrellaE++;
+                    } else {
+                        if (valorU1.equals("Estrella") && valorU2.equals("Vaca")) {
+                            estrellaV++;
+                        } else {
+                            if (valorU1.equals("Estrella") && valorU2.equals("Interrogante")) {
+                                estrellaI++;
+                            } else {
+                                if (valorU1.equals("Estrella") && valorU2.equals("Perro")) {
+                                    estrellaP++;
+                                } else {
+                                    if (valorU1.equals("Vaca") && valorU2.equals("Vaca")) {
+                                        vacaV++;
+                                    } else {
+                                        if (valorU1.equals("Vaca") && valorU2.equals("Estrella")) {
+                                            vacaE++;
+                                        } else {
+                                            if (valorU1.equals("Vaca") && valorU2.equals("Interrogante")) {
+                                                vacaI++;
+                                            } else {
+                                                if (valorU1.equals("Vaca") && valorU2.equals("Perro")) {
+                                                    vacaP++;
+                                                } else {
+                                                    if (valorU1.equals("Interrogante") && valorU2.equals("Interrogante")) {
+                                                        interroganteI++;
+                                                    } else {
+                                                        if (valorU1.equals("Interrogante") && valorU2.equals("Estrella")) {
+                                                            interroganteE++;
+                                                        } else {
+                                                            if (valorU1.equals("Interrogante") && valorU2.equals("Vaca")) {
+                                                                interroganteV++;
+                                                            } else {
+                                                                if (valorU1.equals("Interrogante") && valorU2.equals("Perro")) {
+                                                                    interroganteP++;
+                                                                } else {
+                                                                    if (valorU1.equals("Perro") && valorU2.equals("Estrella")) {
+                                                                        perroE++;
+                                                                    } else {
+                                                                        if (valorU1.equals("Perro") && valorU2.equals("Interrogante")) {
+                                                                            perroI++;
+                                                                        } else {
+                                                                            if (valorU1.equals("Perro") && valorU2.equals("Vaca")) {
+                                                                                perroV++;
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+        }
+        System.out.println("EstrellaE: " + estrellaE);
+        System.out.println("EstrellaV: " + estrellaV);
+        System.out.println("EstrellaI: " + estrellaI);
+        System.out.println("EstrellaP: " + estrellaP);
+        totalEstrella = estrellaE + estrellaV + estrellaI + estrellaP;
+        System.out.println("TOTAL ESTRELLA: " + totalEstrella);
+        System.out.println("----------------------------------------");
+        System.out.println("VacaV: " + vacaV);
+        System.out.println("VacaE: " + vacaE);
+        System.out.println("VacaI: " + vacaI);
+        System.out.println("VacaP: " + vacaP);
+        totalVaca = vacaV + vacaE + vacaI + vacaP;
+        System.out.println("TOTAL VACA: " + totalVaca);
+        System.out.println("----------------------------------------");
+        System.out.println("InterroganteI: " + interroganteI);
+        System.out.println("InterroganteE: " + interroganteE);
+        System.out.println("InterroganteV: " + interroganteV);
+        System.out.println("InterroganteP: " + interroganteP);
+        totalInterrogante = interroganteI + interroganteE + interroganteV + interroganteP;
+        System.out.println("TOTAL INTERROGANTE: " + totalInterrogante);
+        System.out.println("----------------------------------------");
+        System.out.println("PerroP: " + perroP);
+        System.out.println("PerroE: " + perroE);
+        System.out.println("PerroI: " + perroI);
+        System.out.println("PerroV: " + perroV);
+        totalPerro = perroP + perroE + perroI + perroV;
+        System.out.println("TOTAL PERRO: " + totalPerro);
+        MatrizMarkov(estrellaE, estrellaV, estrellaI, estrellaP,
+                totalEstrella, vacaV, vacaE, vacaI, vacaP, totalVaca,
+                interroganteI, interroganteE, interroganteV, interroganteP,
+                totalInterrogante, perroP, perroE, perroI, perroV, totalPerro);
+    }
+
+    public double dividir(double a, double b) {
+        double respuesta = 0;
+        if (b != 0) {
+            respuesta = a / b;
+        }
+        return respuesta;
+    }
+
+    private void MatrizMarkov(double estrellaE, double estrellaV,
+            double estrellaI, double estrellaP, double totalEstrella,
+            double vacaV, double vacaE, double vacaI, double vacaP,
+            double totalVaca, double interroganteI, double interroganteE,
+            double interroganteV, double interroganteP, double totalInterrogante,
+            double perroP, double perroE, double perroI, double perroV, double totalPerro) {
+        double[][] matriza = {{dividir(estrellaE, totalEstrella),
+            dividir(estrellaV, totalEstrella),
+            dividir(estrellaI, totalEstrella), dividir(estrellaP, totalEstrella)},
+        {dividir(vacaE, totalVaca), dividir(vacaV, totalVaca),
+            dividir(vacaI, totalVaca), dividir(vacaP, totalVaca)},
+        {dividir(interroganteE, totalInterrogante),
+            dividir(interroganteV, totalInterrogante),
+            dividir(interroganteI, totalInterrogante), dividir(interroganteP, totalInterrogante)},
+        {dividir(perroE, totalPerro), dividir(perroV, totalPerro),
+            dividir(perroI, totalPerro), dividir(perroP, totalPerro)}};
+        System.out.println("MATRIZ MARKOV");
+        JTextArea jama = new JTextArea();
+        jama.setEditable(false);
+        jama.setText("                                      Matriz Markov\n");
+        for (int x = 0; x < matriza.length; x++) {
+            for (int y = 0; y < matriza[x].length; y++) {
+                System.out.print(matriza[x][y] + "\t");
+                jama.append(matriza[x][y] + "\t");
+
+            }
+            jama.append("\n");
+            System.out.println("");
+        }
+        ElevaMatriz(matriza, 3);
+        //multiply(matriza, matriza);
+        JOptionPane.showMessageDialog(null, jama, "Matriz MARKOV", JOptionPane.INFORMATION_MESSAGE);
+
+    }
+
+    public static double[][] multiply(double[][] a, double[][] b) {
+        Random r = new Random();
+        int randomInt = r.nextInt(50) + 1;
+        System.out.println("MATRIZ MARKOV RESULTANTE multiplicacion por ella misma");
+        JTextArea jama = new JTextArea();
+        jama.setEditable(false);
+        jama.setText("                                      Matriz Markov\n");
+        double[][] c = new double[a.length][b[0].length];
+        // se comprueba si las matrices se pueden multiplicar
+        if (a[0].length == b.length) {
+            for (int i = 0; i < a.length; i++) {
+                for (int j = 0; j < b[0].length; j++) {
+                    for (int k = 0; k < a[0].length; k++) {
+                        // aquí se multiplica la matriz
+                        c[i][j] += a[i][k] * b[k][j];
+                    }
+                    System.out.print(c[i][j] + "\t");
+                }
+                System.out.println("");
+            }
+        }
+        /**
+         * si no se cumple la condición se retorna una matriz vacía
+         */
+        ElevaMatriz(c, 2);
+        return c;
+    }
+
+    private static void MatrizExponencial(double a[][]) {
+        System.out.println("Matriz Elevada");
+        for (int x = 0; x < a.length; x++) {
+            for (int y = 0; y < a[x].length; y++) {
+
+                System.out.print(Math.pow(a[x][y], 4) + "\t");
+            }
+            System.out.println("");
+        }
+    }
+
+    private static void ElevaMatriz(double matriz[][], double potencia) {
+        System.out.println("Matriz Elevada");
+        for (int i = 0; i < matriz.length; i++) {
+            for (int j = 0; j < matriz[i].length; j++) {
+                matriz[i][j] = Math.pow(matriz[i][j], potencia);
+                System.out.print(matriz[i][j] + "\t");
+            }
+            System.out.println("");
+        }
+
+    }
+
 }
